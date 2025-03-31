@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Text to Speech</title>
+</head>
+<body>
+    <h2>Nhập văn bản để chuyển thành giọng nói</h2>
+    <textarea id="text" rows="4" cols="50"></textarea><br>
+    <button onclick="convertTextToSpeech()">Chuyển đổi</button>
+    <audio id="audioPlayer" controls></audio>
+
+    <script>
+        async function convertTextToSpeech() {
+            const text = document.getElementById("text").value;
+            if (!text) return alert("Vui lòng nhập văn bản!");
+
+            try {
+                const response = await fetch("http://localhost:3000/tts", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ text })
+                });
+
+                if (!response.ok) {
+                    throw new Error('Không thể kết nối đến server');
+                }
+
+                // Lấy dữ liệu âm thanh dạng binary
+                const blob = await response.blob();
+                const audioUrl = URL.createObjectURL(blob);
+
+                // Phát file âm thanh
+                const audio = document.getElementById("audioPlayer");
+                audio.src = audioUrl;
+                audio.play();
+
+            } catch (error) {
+                console.error('Có lỗi xảy ra:', error);
+                alert("Có lỗi xảy ra, vui lòng thử lại sau.");
+            }
+        }
+    </script>
+</body>
+</html>
